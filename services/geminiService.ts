@@ -48,7 +48,7 @@ const generateImage = async (prompt: string): Promise<string> => {
         if (errorMessage.includes('api key not valid') || errorMessage.includes('permission denied')) {
             throw new Error("Your API key may not have permission to use the image model. Please check your Google AI Studio settings.");
         }
-        throw new Error(`The image generator is busy or encountered an error. Please try again in a few moments.`);
+        throw new Error(`The image generator returned an unexpected error. Details: ${error instanceof Error ? error.message : String(error)}`);
     }
 };
 
