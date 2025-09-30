@@ -1,0 +1,5 @@
+{
+  "name": "Kid's Story Generator",
+  "description": "An interactive and fun application that generates moral stories for kids using AI. Users can select a topic, language, and voice style, then listen to the generated story and download it as a PDF.",
+  "requestFramePermissions": []
+}
