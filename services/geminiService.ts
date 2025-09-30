@@ -17,6 +17,7 @@ export class ImageGenerationError extends Error {
 }
 
 const generateImage = async (prompt: string): Promise<string> => {
+    // FIX: Use process.env.API_KEY instead of import.meta.env.VITE_API_KEY as per guidelines.
     if (!process.env.API_KEY) {
         throw new Error("API_KEY is not configured.");
     }
@@ -47,6 +48,7 @@ const generateImage = async (prompt: string): Promise<string> => {
 
 
 export const generateStoryAndImages = async (topic: string, language: string, storyLength: number, includeImages: boolean): Promise<StoryPart[]> => {
+    // FIX: Use process.env.API_KEY instead of import.meta.env.VITE_API_KEY as per guidelines.
     if (!process.env.API_KEY) {
         throw new Error("API_KEY is not configured. Story generation is disabled.");
     }
