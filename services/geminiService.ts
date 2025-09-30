@@ -17,7 +17,6 @@ export class ImageGenerationError extends Error {
 }
 
 const generateImage = async (prompt: string): Promise<string> => {
-    // FIX: Use import.meta.env.VITE_API_KEY for client-side Vite apps.
     if (!import.meta.env.VITE_API_KEY) {
         throw new Error("API_KEY is not configured.");
     }
@@ -27,20 +26,27 @@ const generateImage = async (prompt: string): Promise<string> => {
         const response = await ai.models.generateImages({
             model: 'imagen-4.0-generate-001',
             prompt: prompt,
-            config: { numberOfImages: 1, outputMimeType: 'image/png', aspectRatio: '4:3' },
+            config: { numberOfImages: 1, outputMimeType: 'image/jpeg', aspectRatio: '4:3' },
         });
 
         if (response.generatedImages?.[0]?.image?.imageBytes) {
             const base64ImageBytes: string = response.generatedImages[0].image.imageBytes;
-            return `data:image/png;base64,${base64ImageBytes}`;
+            return `data:image/jpeg;base64,${base64ImageBytes}`;
         } else {
             throw new Error("API returned a response with no image data.");
         }
     } catch (error) {
         console.error("Error generating image from Gemini API:", error);
-        const errorMessage = error instanceof Error ? error.message : String(error);
-        if (errorMessage.includes('quota') || errorMessage.includes('RESOURCE_EXHAUSTED')) {
+        const errorMessage = (error instanceof Error ? error.message : String(error)).toLowerCase();
+        
+        if (errorMessage.includes('quota') || errorMessage.includes('resource_exhausted')) {
              throw new Error("The daily limit for creating images has been reached. Please try again tomorrow.");
+        }
+        if (errorMessage.includes('safety') || errorMessage.includes('blocked')) {
+            throw new Error("An image could not be created for this part of the story due to safety filters. The story text is still available.");
+        }
+        if (errorMessage.includes('api key not valid') || errorMessage.includes('permission denied')) {
+            throw new Error("Your API key may not have permission to use the image model. Please check your Google AI Studio settings.");
         }
         throw new Error(`The image generator is busy or encountered an error. Please try again in a few moments.`);
     }
@@ -48,7 +54,6 @@ const generateImage = async (prompt: string): Promise<string> => {
 
 
 export const generateStoryAndImages = async (topic: string, language: string, storyLength: number, includeImages: boolean): Promise<StoryPart[]> => {
-    // FIX: Use import.meta.env.VITE_API_KEY for client-side Vite apps.
     if (!import.meta.env.VITE_API_KEY) {
         throw new Error("API_KEY is not configured. Story generation is disabled.");
     }
